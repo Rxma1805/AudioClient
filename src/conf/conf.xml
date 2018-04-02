@@ -1,0 +1,5 @@
+<conf>
+	<recordTimeSecond>5000</recordTimeSecond>
+	<cmdPort>12345</cmdPort>
+	<dataPort>12347</dataPort>
+	<ServerIP>192.168.2.19</ServerIP></conf>
