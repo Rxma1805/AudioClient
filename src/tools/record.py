@@ -13,12 +13,12 @@ class recorder(object):
         self.is_succeeeful_client = False
         self.state=False#network occupy state
         self.framerate=8000
-        self.numSampls=2000
+        self.numSampls=2048
         self.channels=1
         self.sampwidth=2        
         self.isRecord=False
 #         self.chunk=2048
-        self.time = 5.0
+        self.time = 20.0
         self.IP=IP
         self.PORT=PORT
         self.signal = signal #init is False
@@ -57,6 +57,7 @@ class recorder(object):
             self.convert_to_mp3(waveFile,mp3File)            
             self.tcp_clent.send("SEND".encode())
             data = self.tcp_clent.recv(16).decode()  
+            self.tcp_clent.setsockopt(socket.SOL_SOCKET,socket.SO_SNDBUF,4096)
             if(data == "OK"):
                 try:
                     self.state = True
@@ -64,9 +65,9 @@ class recorder(object):
                     while True:
                         filedata = fo.read(2048)
                         if not filedata:
-                            self.tcp_clent.send(b"END")
+                            self.tcp_clent.send(b"1END")
                             break
-                        self.tcp_clent.send("DATA_".encode()+filedata)
+                        self.tcp_clent.send("DATA".encode()+filedata)
                     fo.close()
                 except: 
                     print(sys.exc_info())

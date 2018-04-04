@@ -8,7 +8,7 @@ import sys
 
 class RealTimeStream(object):
     
-    def __init__(self,IP,PORT,dispose_signal,stop_real_time):
+    def __init__(self,tctimeClient,dispose_signal,stop_real_time):
         self.is_succeeeful_client = False
         self.state=False#network occupy state
         self.framerate=8000
@@ -16,11 +16,11 @@ class RealTimeStream(object):
         self.channels=1
         self.sampwidth=2        
         self.isRecord=False
-        self.IP=IP
-        self.PORT=PORT
+#         self.IP=IP
+#         self.PORT=PORT
         self.dispose_signal = dispose_signal #init is False
         self.stop_event = stop_real_time
-        self.connect()
+        self.tcp_clent = tctimeClient
      
     
     def connect(self):
@@ -52,12 +52,13 @@ class RealTimeStream(object):
                            frames_per_buffer=self.NUM_SAMPLES) 
             while (True):
                 try:                    
-                    if self.stop_event().isSet():
+                    if self.stop_event.isSet():
                         break
                     if self.dispose_signal.isSet():
                         break            
                     string_audio_data = stream.read(self.NUM_SAMPLES)
-                    try:                        
+                    try:    
+                        self.tcp_clent.setsockopt(socket.SOL_SOCKET,socket.SO_SNDBUF,4096)                    
                         self.tcp_clent.send(("DATA_"+srcIp+"_").encode()+string_audio_data)
                     except:
                         

@@ -21,14 +21,14 @@ while True:
     while not state:
         try:
             tctimeClient = socket(AF_INET,SOCK_STREAM)
-            tctimeClient.connect(ADDR)
+            tctimeClient.connect(ADDR)            
         except:
             state = False
             continue        
         state=True
         print("server connected successful!")
     
-    stop_real_time = threading.Event()
+    
     dispose_event = threading.Event() 
     
     while True:       
@@ -47,16 +47,18 @@ while True:
                 start.start()
         elif(data.find("PLAY") != -1):
             tctimeClient.send(data.encode(encoding='utf_8'))  
-            real_stream = sendAudioRealTime.RealTimeStream(HOST,PORT,dispose_event,stop_real_time)
+            stop_real_time = threading.Event()
+            real_stream = sendAudioRealTime.RealTimeStream(tctimeClient,dispose_event,stop_real_time)
             if(not real_stream.get_state()):
                 play = Thread(target=real_stream.real_time_play,args=(data.split('_')[3],))
                 play.start()
     #         play = Thread(target=record.play) 
     #         play.start()
-        elif(data.find("STOP") != -1):
-            tctimeClient.send(data.encode(encoding='utf_8'))            
+        elif(data.find("STOP") != -1):                     
             if(real_stream.get_state()):
                 stop_real_time.set()
+            time.sleep(1)
+            tctimeClient.send(data.encode(encoding='utf_8'))   
         
         elif(data.find("EXIT") != -1):
             state=False
